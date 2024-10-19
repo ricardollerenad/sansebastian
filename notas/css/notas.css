@@ -1,0 +1,72 @@
+body{
+    background: #314F8B;
+}
+/* assets/css/styles.css */
+
+/* Estilos para el título sticky */
+.sticky-header {
+    position: -webkit-sticky; /* Para navegadores WebKit */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #ffffff; /* Fondo blanco para el título */
+    padding: 15px; /* Espaciado alrededor del título */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil para mejor visibilidad */
+    border-bottom: 2px solid #dee2e6; /* Línea de separación inferior */
+}
+
+/* Estilos para la tabla con fondo blanco */
+.table {
+    background-color: #ffffff; /* Fondo blanco para toda la tabla */
+    border-collapse: collapse; /* Asegura que los bordes se vean bien juntos */
+    width: 100%; /* Asegura que la tabla ocupe todo el ancho del contenedor */
+}
+
+/* Estilos para las cabeceras de la tabla sticky */
+.table thead th {
+    position: -webkit-sticky; /* Para navegadores WebKit */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #ffffff; /* Fondo blanco para las cabeceras */
+    border-bottom: 2px solid #dee2e6; /* Línea de separación inferior */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil para mejor visibilidad */
+}
+
+/* Estilos para las celdas de la tabla */
+.table tbody td {
+    background-color: #ffffff; /* Fondo blanco para las celdas */
+    border-bottom: 1px solid #dee2e6; /* Línea de separación inferior de las celdas */
+}
+
+/* Opcional: Alternar colores de fila para mejor legibilidad */
+.table tbody tr:nth-child(odd) {
+    background-color: #f8f9fa; /* Color gris claro para filas alternas */
+}
+
+/* Estilo para el enlace de flecha */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    margin-top: 20px;
+    font-size: 30px;
+    width: 30px; /* Ajusta el ancho según sea necesario */
+    height: 30px; /* Ajusta el alto según sea necesario */
+    border: 2px solid white;
+    border-radius: 50%;
+    background-color: #007bff; /* Color de fondo */
+    transition: background-color 0.3s, border-color 0.3s;
+    text-align: center;
+}
+
+.back-link:hover {
+    background-color: #0056b3; /* Color de fondo al pasar el ratón */
+    border-color: #0056b3;
+}
+
+.back-link i {
+    margin: 0;
+}

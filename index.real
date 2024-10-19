@@ -1,0 +1,7 @@
+<h1> HOLA SOY RICARDO </h1>
+<?php 
+global $USER;
+$user_id = $USER->id;
+echo "El ID del usuario actual es: " . $user_id;
+?>
+

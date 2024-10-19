@@ -1,0 +1,491 @@
+<?php
+// Iniciar la sesión
+session_start();
+
+if (!empty($_SESSION['userid'])) {
+    require(__DIR__.'/config.php');
+
+    $bimestre= 2;
+    $courseid = $_SESSION['courseid'];
+    $userid = $_SESSION['userid'];
+    $nombreCurso = $curso = nombreCurso($courseid);
+    $nombreCurso = $nombreCurso->course_name;
+    $usuario_id = $_SESSION['userid'];
+    $n_sesiones=12;
+
+    $competencias =competenciasCusrsos($courseid);
+
+    /*
+    foreach($competencias as $competencia){
+        echo "<pre>";
+        echo $competencia['competencias']."<br>";
+        echo var_dump(capacidadesCompetencias($competencia['id']))."<br>";
+        echo "</pre>";
+    }
+    */
+
+} else {
+    // Mensaje si no se pasan parámetros
+    require(__DIR__.'/config.php');
+    echo '<h1>No tiene derechos para ingresar aqui</h1>';
+}
+
+
+/*
+$nombreCurso = nombreCurso($courseid);
+$nombreCurso = $nombreCurso->course_name;
+*/
+
+?>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación para el curso</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/documentacion.css">
+    <!-- Datepicker CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4 sticky-header">CUR: <span style="color:blue"><?php echo $nombreCurso ?> </span> BIMESTRE - <span style="color:blue"><?php echo $bimestre ?> </span></h1>
+
+        <!-- Secciones con Toggle -->
+        <div id="accordion">
+            <?php for ($i = 1; $i <= $n_sesiones; $i++): ?>
+                <div class="card">
+                    <!-- CABECERA DIV DE SECCION -->
+                    <div class="card-header" id="heading<?php echo $i; ?>">
+                        <h5 class="mb-0">
+                            
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $i; ?>" aria-expanded="true" aria-controls="collapse<?php echo $i; ?>">
+                                Sección <?php echo $i; ?>
+                            </button>
+                        </h5>
+                    </div>
+                    <!-- AREA DENTRO DEL DIV DE SECCION -->
+                    <div id="collapse<?php echo $i; ?>" class="collapse" aria-labelledby="heading<?php echo $i; ?>" data-parent="#accordion">
+                        <div class="card-body">
+                            <!-- INICIA EL FORM -->
+                            <form action="#" method="post" enctype="multipart/form-data" id="sesiones<?php echo $n_sesiones?>">
+                                <div id="accordion<?php echo $i; ?>">
+                                    <!-- Propósitos de Aprendizaje -->
+                                        <!-- Consulta a la base de datos -->
+                                        <?php
+                                            $datoSesion = haySesion($bimestre, $courseid, $userid, $i);
+                                            if(isset($datoSesion['id'])){
+                                        ?>
+                                        <!-- Hay datos en la tabla -->
+                                        <div class="card">
+                                            <div class="card-header" id="heading<?php echo $i; ?>-1">
+                                                <h5 class="mb-0">
+                                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $i; ?>-1" aria-expanded="true" aria-controls="collapse<?php echo $i; ?>-1">
+                                                        Propósitos de Aprendizaje
+                                                    </button>
+                                                </h5>
+                                            </div>
+                                            <!-- Datos de la Sesion -->
+                                            <?php ?>
+                                            <div id="collapse<?php echo $i; ?>-1" class="collapse" aria-labelledby="heading<?php echo $i; ?>-1" data-parent="#accordion<?php echo $i; ?>">
+                                                <div class="card-body">
+                                                    <!-- Datos ocultos -->
+                                                    <div class="form-row d-none">
+                                                        <input type="hidden" id="courseid<?php echo $i; ?>" name="courseid" value="<?php echo $courseid; ?>">
+                                                        <input type="hidden" id="userid<?php echo $i; ?>" name="userid" value="<?php echo $userid; ?>">
+                                                        <input type="hidden" id="bimestre<?php echo $i; ?>" name="bimestre" value="<?php echo $bimestre; ?>">
+                                                        <input type="hidden" id="seccion<?php echo $i; ?>" name="seccion" value="<?php echo $i; ?>">
+                                                    </div>
+
+                                                    <!-- Rango de Fechas -->
+                                                    <div class="form-row">
+                                                        <div class="form-group col-md-6">
+                                                            <label for="startDate<?php echo $i; ?>">Fecha de Inicio</label>
+                                                            <input type="text" id="startDate<?php echo $i; ?>" name="startDate" class="form-control datepicker" placeholder="Seleccionar fecha de inicio" value=<?php echo $datoSesion['fecha_inicio_sesion']?>>
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="endDate<?php echo $i; ?>">Fecha de Fin</label>
+                                                            <input type="text" id="endDate<?php echo $i; ?>" name="endDate" class="form-control datepicker" placeholder="Seleccionar fecha de fin" value=<?php echo $datoSesion['fecha_final_sesion']?>>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Competencia, Capacidad, Desempeño -->
+                                                    <div class="form-row">
+                                                        <div class="form-group col-md-4">
+                                                            <label for="competencia<?php echo $i; ?>">Competencia</label>
+                                                            <select id="competencia<?php echo $i; ?>" name="competencia" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de competencias cargadas desde la base de datos -->
+                                                                <?php
+                                                                    foreach ($competencias as $competencia) :
+                                                                        $selected = ($competencia['id'] === $datoSesion['competencias_id']) ? 'selected' : '';
+                                                                        echo "<option value=\"$competencia[id]\" $selected>$competencia[competencia]</option>"; // Imprimir la opción
+                                                                    endforeach;
+                                                                ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="capacidad<?php echo $i; ?>">Capacidad</label>
+                                                            <select id="capacidad<?php echo $i; ?>" name="capacidad" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de capacidad -->
+                                                                <?php
+                                                                    $capacidades = capacidadesCompetencias($datoSesion['competencias_id']);
+                                                                    foreach ($capacidades as $capacidad) :
+                                                                        $selected = ($capacidad['id'] === $datoSesion['capacidad_id']) ? 'selected' : '';
+                                                                        echo "<option value=\"$capacidad[id]\" $selected>$capacidad[capacidad]</option>"; // Imprimir la opción
+                                                                    endforeach;
+                                                                    
+                                                                ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="desempeno<?php echo $i; ?>">Desempeño</label>
+                                                            <textarea id="desempeno<?php echo $i; ?>" name="desempeno" class="form-control" rows="4" maxlength="600"><?php echo $datoSesion['desempeno'] ?></textarea>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Fila 1 -->
+                                                    <div class="form-row" data-id="1">
+                                                        <div class="form-group col-md-4">
+                                                            <label for="competencia1">Competencia</label>
+                                                            <select id="competencia1" name="competencia[]" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de competencias cargadas desde la base de datos -->
+                                                                <?php foreach ($competencias as $competencia) : 
+                                                                    $selected = ($competencia['id'] === $datoSesion['competencias_id']) ? 'selected' : '';
+                                                                    echo "<option value=\"{$competencia['id']}\" $selected>{$competencia['competencia']}</option>"; 
+                                                                endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="capacidad1">Capacidad</label>
+                                                            <select id="capacidad1" name="capacidad[]" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de capacidad -->
+                                                                <?php 
+                                                                $capacidades = capacidadesCompetencias($datoSesion['competencias_id']);
+                                                                foreach ($capacidades as $capacidad) : 
+                                                                    $selected = ($capacidad['id'] === $datoSesion['capacidad_id']) ? 'selected' : '';
+                                                                    echo "<option value=\"{$capacidad['id']}\" $selected>{$capacidad['capacidad']}</option>"; 
+                                                                endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="desempeno1">Desempeño</label>
+                                                            <textarea id="desempeno1" name="desempeno[]" class="form-control" rows="4" maxlength="600"><?php echo $datoSesion['desempeno'] ?></textarea>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Fila 2 -->
+                                                    <div class="form-row" data-id="2">
+                                                        <div class="form-group col-md-4">
+                                                            <label for="competencia2">Competencia</label>
+                                                            <select id="competencia2" name="competencia[]" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de competencias cargadas desde la base de datos -->
+                                                                <?php foreach ($competencias as $competencia) : 
+                                                                    $selected = ($competencia['id'] === $datoSesion['competencias_id']) ? 'selected' : '';
+                                                                    echo "<option value=\"{$competencia['id']}\" $selected>{$competencia['competencia']}</option>"; 
+                                                                endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="capacidad2">Capacidad</label>
+                                                            <select id="capacidad2" name="capacidad[]" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de capacidad -->
+                                                                <?php 
+                                                                $capacidades = capacidadesCompetencias($datoSesion['competencias_id']);
+                                                                foreach ($capacidades as $capacidad) : 
+                                                                    $selected = ($capacidad['id'] === $datoSesion['capacidad_id']) ? 'selected' : '';
+                                                                    echo "<option value=\"{$capacidad['id']}\" $selected>{$capacidad['capacidad']}</option>"; 
+                                                                endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="desempeno2">Desempeño</label>
+                                                            <textarea id="desempeno2" name="desempeno[]" class="form-control" rows="4" maxlength="600"><?php echo $datoSesion['desempeno'] ?></textarea>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Fila 3 -->
+                                                    <div class="form-row" data-id="3">
+                                                        <div class="form-group col-md-4">
+                                                            <label for="competencia3">Competencia</label>
+                                                            <select id="competencia3" name="competencia[]" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de competencias cargadas desde la base de datos -->
+                                                                <?php foreach ($competencias as $competencia) : 
+                                                                    $selected = ($competencia['id'] === $datoSesion['competencias_id']) ? 'selected' : '';
+                                                                    echo "<option value=\"{$competencia['id']}\" $selected>{$competencia['competencia']}</option>"; 
+                                                                endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="capacidad3">Capacidad</label>
+                                                            <select id="capacidad3" name="capacidad[]" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de capacidad -->
+                                                                <?php 
+                                                                $capacidades = capacidadesCompetencias($datoSesion['competencias_id']);
+                                                                foreach ($capacidades as $capacidad) : 
+                                                                    $selected = ($capacidad['id'] === $datoSesion['capacidad_id']) ? 'selected' : '';
+                                                                    echo "<option value=\"{$capacidad['id']}\" $selected>{$capacidad['capacidad']}</option>"; 
+                                                                endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="desempeno3">Desempeño</label>
+                                                            <textarea id="desempeno3" name="desempeno[]" class="form-control" rows="4" maxlength="600"><?php echo $datoSesion['desempeno'] ?></textarea>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Evidencia de Aprendizaje -->
+                                                    <div class="form-group">
+                                                        <label for="evidencia<?php echo $i; ?>">Evidencia de Aprendizaje</label>
+                                                        <textarea id="evidencia<?php echo $i; ?>" name="evidencia" class="form-control" rows="3" placeholder="Ingrese evidencia de aprendizaje"><?php echo $datoSesion['evidencia'] ?></textarea>
+                                                    </div>
+
+                                                    <!-- Actitudes o Acciones Observables -->
+                                                    <div class="form-group">
+                                                        <label for="actitudes<?php echo $i; ?>">Actitudes o Acciones Observables</label>
+                                                        <textarea id="actitudes<?php echo $i; ?>" name="actitudes" class="form-control" rows="3" placeholder="Ingrese actitudes o acciones observables"><?php echo $datoSesion['actitudes'] ?></textarea>
+                                                    </div>
+
+                                                    <!-- Propósito -->
+                                                    <div class="form-group">
+                                                        <label for="proposito<?php echo $i; ?>">Propósito</label>
+                                                        <textarea id="proposito<?php echo $i; ?>" name="proposito" class="form-control" rows="3" placeholder="Ingrese propósito"><?php echo $datoSesion['proposito'] ?></textarea>
+                                                    </div>
+                                                </div>
+                                                <!-- Botones de Envio -->
+                                                <div class="form-group mt-3" style="text-align:center">
+                                                    <button type="button" class="btn btn-success btn-update-proposito" data-id="<?php echo $i; ?>">Actualizar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php }else{ ?>
+                                        <!-- Tabla Vacio -->
+                                        <div class="card">
+                                            <div class="card-header" id="heading<?php echo $i; ?>-1">
+                                                <h5 class="mb-0">
+                                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $i; ?>-1" aria-expanded="true" aria-controls="collapse<?php echo $i; ?>-1">
+                                                        Propósitos de Aprendizaje
+                                                    </button>
+                                                </h5>
+                                            </div>
+                                            <div id="collapse<?php echo $i; ?>-1" class="collapse" aria-labelledby="heading<?php echo $i; ?>-1" data-parent="#accordion<?php echo $i; ?>">
+                                                <div class="card-body">
+                                                    <!-- Datos ocultos -->
+                                                    <div class="form-row d-none">
+                                                        <input type="hidden" id="courseid<?php echo $i; ?>" name="courseid" value="<?php echo $courseid; ?>">
+                                                        <input type="hidden" id="userid<?php echo $i; ?>" name="userid" value="<?php echo $userid; ?>">
+                                                        <input type="hidden" id="bimestre<?php echo $i; ?>" name="bimestre" value="<?php echo $bimestre; ?>">
+                                                        <input type="hidden" id="seccion<?php echo $i; ?>" name="seccion" value="<?php echo $i; ?>">
+                                                    </div>
+
+                                                    <!-- Rango de Fechas -->
+                                                    <div class="form-row">
+                                                        <div class="form-group col-md-6">
+                                                            <label for="startDate<?php echo $i; ?>">Fecha de Inicio</label>
+                                                            <input type="text" id="startDate<?php echo $i; ?>" name="startDate" class="form-control datepicker" placeholder="Seleccionar fecha de inicio">
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="endDate<?php echo $i; ?>">Fecha de Fin</label>
+                                                            <input type="text" id="endDate<?php echo $i; ?>" name="endDate" class="form-control datepicker" placeholder="Seleccionar fecha de fin">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Competencia, Capacidad, Desempeño -->
+                                                    <div class="form-row">
+                                                        <div class="form-group col-md-4">
+                                                            <label for="competencia<?php echo $i; ?>">Competencia</label>
+                                                            <select id="competencia<?php echo $i; ?>" name="competencia" class="form-control">
+                                                                <option value="">Seleccionar</option>
+                                                                <!-- Opciones de competencias cargadas desde la base de datos -->
+                                                                <?php
+                                                                    foreach ($competencias as $competencia) :
+                                                                        $selected = ($competencia === 'hola') ? 'selected' : ''; // Determinar si debe ser seleccionado
+                                                                        echo "<option value=\"$competencia[id]\" $selected>$competencia[competencia]</option>"; // Imprimir la opción
+                                                                    endforeach;
+                                                                ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="capacidad<?php echo $i; ?>">Capacidad</label>
+                                                            <select id="capacidad<?php echo $i; ?>" name="capacidad" class="form-control">
+                                                                <!-- Aqui carga las opciones segun la competencia-->
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <label for="desempeno<?php echo $i; ?>">Desempeño</label>
+                                                            <textarea id="desempeno<?php echo $i; ?>" name="desempeno" class="form-control" rows="4" maxlength="600"></textarea>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Evidencia de Aprendizaje -->
+                                                    <div class="form-group">
+                                                        <label for="evidencia<?php echo $i; ?>">Evidencia de Aprendizaje</label>
+                                                        <textarea id="evidencia<?php echo $i; ?>" name="evidencia" class="form-control" rows="3" placeholder="Ingrese evidencia de aprendizaje"></textarea>
+                                                    </div>
+
+                                                    <!-- Actitudes o Acciones Observables -->
+                                                    <div class="form-group">
+                                                        <label for="actitudes<?php echo $i; ?>">Actitudes o Acciones Observables</label>
+                                                        <textarea id="actitudes<?php echo $i; ?>" name="actitudes" class="form-control" rows="3" placeholder="Ingrese actitudes o acciones observables"></textarea>
+                                                    </div>
+
+                                                    <!-- Propósito -->
+                                                    <div class="form-group">
+                                                        <label for="proposito<?php echo $i; ?>">Propósito</label>
+                                                        <textarea id="proposito<?php echo $i; ?>" name="proposito" class="form-control" rows="3" placeholder="Ingrese propósito"></textarea>
+                                                    </div>
+                                                </div>
+                                                <!-- Botones de Envio -->
+                                                <div class="form-group mt-3" style="text-align:center">
+                                                    <button type="button" class="btn btn-danger btn-save-proposito" data-id="<?php echo $i; ?>">Guardar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php }; ?>
+                                    <!-- Evaluación -->
+                                     <!-- Consulta a la base de datos -->
+                                        <?php
+                                            /*$datoSesion = hayEvaluacion($bimestre, $courseid, $userid, $i);
+                                            if(isset($datoSesion['id'])){*/
+                                        ?>
+                                    
+                                    <div class="card">
+                                        <div class="card-header" id="heading<?php echo $i; ?>-2">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $i; ?>-2" aria-expanded="true" aria-controls="collapse<?php echo $i; ?>-2">
+                                                    Evaluación
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <!-- Datos ocultos -->
+                                        <div class="form-row d-none">
+                                            <input type="hidden" id="courseid<?php echo $i; ?>" name="courseid" value="<?php echo $courseid; ?>">
+                                            <input type="hidden" id="userid<?php echo $i; ?>" name="userid" value="<?php echo $userid; ?>">
+                                            <input type="hidden" id="bimestre<?php echo $i; ?>" name="bimestre" value="<?php echo $bimestre; ?>">
+                                            <input type="hidden" id="seccion<?php echo $i; ?>" name="seccion" value="<?php echo $i; ?>">
+                                        </div>
+                                        <div id="collapse<?php echo $i; ?>-2" class="collapse" aria-labelledby="heading<?php echo $i; ?>-2" data-parent="#accordion<?php echo $i; ?>">
+                                            <div class="card-body">
+                                                <!-- Lista de Cotejos -->
+                                                <h2 class="text-center">LISTA DE COTEJOS</h2>
+                                                
+                                                <!-- Fila de Competencias, Competencias, Desempeño -->
+                                                <div class="form-row mb-3">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="competencia_evaluacion<?php echo $i; ?>">Competencias</label>
+                                                        <select id="competencia_evaluacion<?php echo $i; ?>" name="competencia_evaluacion" class="form-control">
+                                                            <!-- Opciones de competencias cargadas desde la base de datos -->
+                                                            <option value="">Seleccionar</option>
+                                                            <?php
+                                                                foreach ($competencias as $competencia) :
+                                                                    $selected = ($competencia === 'hola') ? 'selected' : ''; // Determinar si debe ser seleccionado
+                                                                    echo "<option value=\"$competencia[id]\" $selected>$competencia[competencia]</option>"; // Imprimir la opción
+                                                                endforeach;
+                                                            ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="capacidades_evaluacion<?php echo $i; ?>">Capacidades</label>
+                                                        <select id="capacidades_evaluacion<?php echo $i; ?>" name="capacidades_evaluacion" class="form-control">
+                                                            <!-- Opciones de competencias cargadas desde la base de datos -->
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="desempeno_evaluacion<?php echo $i; ?>">Desempeño</label>
+                                                        <textarea id="desempeno_evaluacion<?php echo $i; ?>" name="desempeno_evaluacion" class="form-control" rows="4" maxlength="600"></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Tabla de Evaluación -->
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>N°</th>
+                                                            <th>Nombre y Apellidos</th>
+                                                            <th>Escala de Valoración</th>
+                                                            <th>Comentarios</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- Consulta listado de alumno -->
+                                                        <?php 
+                                                            $alumnosMatriculados= alumnosMatriculados($courseid);
+                                                            $contador=1;
+                                                        ?>
+                                                        <?php foreach($alumnosMatriculados as $alumno): ?>
+                                                                <tr>
+                                                                    <td><?php echo $contador ?></td>
+                                                                    <td>
+                                                                        <!-- <input type="text" name="nombre_apellidos" class="form-control" placeholder="Nombre y Apellidos"> -->
+                                                                        <p><?php echo $alumno['nombre']." ".$alumno['apellido'] ?></p>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" type="radio" name="valoracion<?php echo $contador; ?>" id="valoracion1_<?php echo $contador; ?>" value="siempre">
+                                                                            <label class="form-check-label" for="valoracion1_<?php echo $contador; ?>">Siempre</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" type="radio" name="valoracion<?php echo $contador; ?>" id="valoracion2_<?php echo $contador; ?>" value="a veces" checked>
+                                                                            <label class="form-check-label" for="valoracion2_<?php echo $contador; ?>">A veces</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" type="radio" name="valoracion<?php echo $contador; ?>" id="valoracion3_<?php echo $contador; ?>" value="con ayuda o dificultad">
+                                                                            <label class="form-check-label" for="valoracion3_<?php echo $contador; ?>">Con ayuda o dificultad</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" type="radio" name="valoracion<?php echo $contador; ?>" id="valoracion4_<?php echo $contador; ?>" value="no lo hace">
+                                                                            <label class="form-check-label" for="valoracion4_<?php echo $contador; ?>">No lo hace</label>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <textarea id="comentarios<?php echo $i; ?>" name="comentarios<?php echo $contador; ?>" class="form-control" rows="4" maxlength="300"></textarea>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php $contador++; endforeach;?>
+                                                        
+                                                        <!-- Agregar más filas según sea necesario -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <!-- Botones de Envio -->
+                                            <div class="form-group mt-3" style="text-align:center">
+                                                <button type="button" class="btn btn-danger btn-save-evaluacion" data-id="<?php echo $i; ?>">Guardar</button>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <?php endfor; ?>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Datepicker JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/documentacion.js"></script>
+</body>
+</html>
+

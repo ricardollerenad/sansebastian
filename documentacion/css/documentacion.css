@@ -1,0 +1,63 @@
+.sticky-header {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1020; /* Ensures the header stays above other content */
+    padding: 10px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Optional shadow for better visibility */
+}
+
+body{
+    background: #314F8B;
+}
+
+/* Estilo para el botón del acordeón */
+.btn-link {
+    font-size: 1.5rem; /* Agrandar el texto */
+    color: #007bff; /* Color del texto del acordeón */
+    text-align: center; /* Centrar el texto */
+    width: 100%; /* Asegurarse de que el botón ocupe todo el ancho */
+    display: flex; /* Usar flexbox para centrar el contenido */
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    font-weight: bold; /* Hacer el texto en negrita */
+}
+
+/* Agregar icono de flecha al lado del texto */
+.btn-link::after {
+    content: '\f078'; /* Unicode para una flecha hacia abajo */
+    font-family: 'Font Awesome 5 Free'; /* Fuente de FontAwesome */
+    font-weight: 900; /* Peso de fuente para el ícono de FontAwesome */
+    margin-left: 10px; /* Espacio entre el texto y el ícono */
+}
+
+/* Cambiar la flecha cuando el acordeón está expandido */
+.show .btn-link::after {
+    content: '\f077'; /* Unicode para una flecha hacia arriba */
+}
+
+/* Opcional: Estilo para el texto dentro de los encabezados de los acordiones */
+.card-header {
+    text-align: center; /* Centrar el texto en el encabezado del acordeón */
+}
+
+/* Asegurarse de que el texto esté centrado en todos los niveles */
+.card-header h5 {
+    margin: 0; /* Eliminar márgenes por defecto */
+}
+
+.custom-hr {
+    border: none;
+    height: 2px;
+    background-color: #007bff; /* Gris claro */
+    margin: 20px 0; /* Espaciado superior e inferior */
+  }     
+
+.bg-crema-bajo{
+    background: #fcf5c7;
+}
+
+.bg-rojo-bajo{
+    background: #ffc2d1;
+}
