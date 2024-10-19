@@ -1,1 +1,1 @@
-#Codigo para colegios
+Codigo para colegios
